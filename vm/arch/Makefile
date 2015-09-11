@@ -7,3 +7,8 @@ ifdef CONFIG_ARCH_ARM
 arch := arch/arm
 include arch/arm/Makefile
 endif
+
+ifdef CONFIG_ARCH_ARDUINO
+arch := arch/arduino
+include arch/arduino/Makefile
+endif

@@ -80,7 +80,7 @@ include/arch: include/config/auto.conf
 	@ln -sf ../$(arch)/include/ include/arch
 
 CROSS  := $(call unquote,$(CONFIG_CROSS_COMPILER))
-CFLAGS := -Iinclude/ -DPICOBIT -Wall -Werror -Os
+CFLAGS := -Iinclude/ -DPICOBIT -Wall -Werror -Os $(call unquote,$(CONFIG_CFLAGS))
 
 arch  = arch/$(call unquote,$(CONFIG_ARCH))
 # Some linkers may have trouble with this order. Put arch first if

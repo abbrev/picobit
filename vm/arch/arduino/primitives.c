@@ -3,157 +3,19 @@
 #include <bignum.h>
 
 #include <stdio.h>
-#include <sys/time.h>
-
-// most of this is for the host architecture
-// there's some PIC18 code in there too
-// it should eventually be moved to its own architecture
-
-#ifdef CONFIG_ARCH_HOST
-
-static void show (obj o)
-{
-#if 0
-	printf ("[%d]", o);
-#endif
-
-	if (o == OBJ_FALSE) {
-		printf ("#f");
-	} else if (o == OBJ_TRUE) {
-		printf ("#t");
-	} else if (o == OBJ_NULL) {
-		printf ("()");
-	} else if (o <= (MIN_FIXNUM_ENCODING + (MAX_FIXNUM - MIN_FIXNUM))) {
-		printf ("%d", DECODE_FIXNUM(o));
-	} else {
-		uint8 in_ram;
-
-		if (IN_RAM(o)) {
-			in_ram = 1;
-		} else {
-			in_ram = 0;
-		}
-
-		if ((in_ram && RAM_BIGNUM_P(o)) || (!in_ram && ROM_BIGNUM_P(o))) { // TODO fix for new bignums, especially for the sign, a -5 is displayed as 251
-			printf ("%d", decode_int (o));
-		} else if ((in_ram && RAM_COMPOSITE_P(o)) || (!in_ram && ROM_COMPOSITE_P(o))) {
-			obj car;
-			obj cdr;
-
-			if ((in_ram && RAM_PAIR_P(o)) || (!in_ram && ROM_PAIR_P(o))) {
-				if (in_ram) {
-					car = ram_get_car (o);
-					cdr = ram_get_cdr (o);
-				} else {
-					car = rom_get_car (o);
-					cdr = rom_get_cdr (o);
-				}
-
-				printf ("(");
-
-loop:
-
-				show (car);
-
-				if (cdr == OBJ_NULL) {
-					printf (")");
-				} else if ((IN_RAM(cdr) && RAM_PAIR_P(cdr))
-				           || (IN_ROM(cdr) && ROM_PAIR_P(cdr))) {
-					if (IN_RAM(cdr)) {
-						car = ram_get_car (cdr);
-						cdr = ram_get_cdr (cdr);
-					} else {
-						car = rom_get_car (cdr);
-						cdr = rom_get_cdr (cdr);
-					}
-
-					printf (" ");
-					goto loop;
-				} else {
-					printf (" . ");
-					show (cdr);
-					printf (")");
-				}
-			} else if ((in_ram && RAM_SYMBOL_P(o)) || (!in_ram && ROM_SYMBOL_P(o))) {
-				printf ("#<symbol>");
-			} else if ((in_ram && RAM_STRING_P(o)) || (!in_ram && ROM_STRING_P(o))) {
-				printf ("#<string>");
-			} else if ((in_ram && RAM_VECTOR_P(o)) || (!in_ram && ROM_VECTOR_P(o))) {
-				printf ("#<vector %d>", o);
-			} else {
-				printf ("(");
-				cdr = ram_get_car (o);
-				car = ram_get_cdr (o);
-				// ugly hack, takes advantage of the fact that pairs and
-				// continuations have the same layout
-				goto loop;
-			}
-		} else { // closure
-			obj env;
-			rom_addr pc;
-
-			env = ram_get_car (o);
-			pc = ram_get_entry (o);
-
-			printf ("{0x%04x ", pc);
-			show (env);
-			printf ("}");
-		}
-	}
-
-	fflush (stdout);
-}
-
-static void print (obj o)
-{
-	show (o);
-	printf ("\n");
-	fflush (stdout);
-}
-
-#endif
+//#include <sys/time.h>
 
 PRIMITIVE_UNSPEC(print, print, 1)
 {
-#ifdef CONFIG_ARCH_HOST
-	print (arg1);
-#endif
-
 	arg1 = OBJ_FALSE;
 }
 
 
-uint32 read_clock ()
+static uint32 read_clock ()
 {
 	uint32 now = 0;
 
-#ifdef  PICOBOARD2
-	now = from_now( 0 );
-#endif
-
-#ifdef CONFIG_ARCH_HOST
-	static uint32_t start = 0;
-
-#ifdef _WIN32
-	struct timeb tb;
-
-	if (ftime (&tb) == 0) {
-		now = tb.time * 1000 + tb.millitm;
-	}
-#else
-	struct timeval tv;
-
-	if (gettimeofday (&tv, NULL) == 0) {
-		now = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-	}
-#endif
-
-	if (start == 0) {
-		start = now;
-	}
-
-	now -= start;
-#endif
+	// TODO
 
 	return now;
 }
@@ -163,6 +25,7 @@ PRIMITIVE(clock, clock, 0)
 	arg1 = encode_int (read_clock ());
 }
 
+#if 0
 PRIMITIVE_UNSPEC(motor, motor, 2)
 {
 	decode_2_int_args ();
@@ -171,14 +34,7 @@ PRIMITIVE_UNSPEC(motor, motor, 2)
 		ERROR("motor", "argument out of range");
 	}
 
-#ifdef  PICOBOARD2
-	MOTOR_set( a1, a2 );
-#endif
 
-#ifdef CONFIG_ARCH_HOST
-	printf ("motor %d -> power=%d\n", a1, a2);
-	fflush (stdout);
-#endif
 
 	arg1 = OBJ_FALSE;
 	arg2 = OBJ_FALSE;
@@ -193,14 +49,7 @@ PRIMITIVE_UNSPEC(led, led, 3)
 		ERROR("led", "argument out of range");
 	}
 
-#ifdef  PICOBOARD2
-	LED_set( a1, a2, a3 );
-#endif
 
-#ifdef CONFIG_ARCH_HOST
-	printf ("led %d -> duty=%d period=%d\n", a1, a2, a3 );
-	fflush (stdout);
-#endif
 
 	arg1 = OBJ_FALSE;
 	arg2 = OBJ_FALSE;
@@ -215,17 +64,11 @@ PRIMITIVE_UNSPEC(#%led2-color, led2_color, 1)
 		ERROR("led2-colors", "argument out of range");
 	}
 
-#ifdef PICOBOARD2
-	LED2_color_set( a1 );
-#endif
 
-#ifdef CONFIG_ARCH_HOST
-	printf ("led2-color -> %s\n", (a1==0)?"green":"red");
-	fflush (stdout);
-#endif
 
 	arg1 = OBJ_FALSE;
 }
+#endif
 
 PRIMITIVE(#%getchar-wait, getchar_wait, 2)
 {
@@ -238,7 +81,9 @@ PRIMITIVE(#%getchar-wait, getchar_wait, 2)
 
 	arg1 = OBJ_FALSE;
 
+
 #ifdef PICOBOARD2
+	// TODO adapt to Arduino
 	{
 		serial_port_set ports;
 		ports = serial_rx_wait_with_timeout( a2, a1 );
@@ -249,21 +94,6 @@ PRIMITIVE(#%getchar-wait, getchar_wait, 2)
 	}
 #endif
 
-#ifdef CONFIG_ARCH_HOST
-#ifdef _WIN32
-	arg1 = OBJ_FALSE;
-
-	do {
-		if (_kbhit ())  {
-			arg1 = encode_int (_getch ());
-			break;
-		}
-	} while (read_clock () < a1);
-
-#else
-	arg1 = encode_int (getchar ());
-#endif
-#endif
 }
 
 PRIMITIVE(#%putchar, putchar, 2)
@@ -275,21 +105,15 @@ PRIMITIVE(#%putchar, putchar, 2)
 	}
 
 #ifdef  PICOBOARD2
+	// TODO adapt to Arduino
 	serial_tx_write( a2, a1 );
-#endif
-#ifdef SIXPIC
-	uart_write(a1);
-#endif
-
-#ifdef CONFIG_ARCH_HOST
-	putchar (a1);
-	fflush (stdout);
 #endif
 
 	arg1 = OBJ_FALSE;
 	arg2 = OBJ_FALSE;
 }
 
+#if 0
 PRIMITIVE(beep, beep, 2)
 {
 	decode_2_int_args ();
@@ -298,22 +122,14 @@ PRIMITIVE(beep, beep, 2)
 		ERROR("beep", "argument out of range");
 	}
 
-#ifdef  PICOBOARD2
-	beep( a1, from_now( a2 ) );
-#endif
-
-#ifdef CONFIG_ARCH_HOST
-	printf ("beep -> freq-div=%d duration=%d\n", a1, a2 );
-	fflush (stdout);
-#endif
-
 	arg1 = OBJ_FALSE;
 	arg2 = OBJ_FALSE;
 }
+#endif
 
 PRIMITIVE(adc, adc, 1)
 {
-	uint16 x;
+	uint16 x = 0;
 
 	a1 = decode_int (arg1);
 
@@ -322,21 +138,11 @@ PRIMITIVE(adc, adc, 1)
 	}
 
 #ifdef  PICOBOARD2
+	// TODO adapt to Arduino
 	x = adc( a1 );
 #endif
 
-#ifdef CONFIG_ARCH_HOST
-	x = read_clock () & 255;
-
-	if (x > 127) {
-		x = 256 - x;
-	}
-
-	x += 200;
-#endif
-
-//	arg1 = encode_int (x);
-	arg1 = encode_int (0);
+	arg1 = encode_int (x);
 }
 
 PRIMITIVE(sernum, sernum, 0)

@@ -1,0 +1,26 @@
+config CROSS_COMPILER
+	string "Cross compiler prefix"
+	default "avr-"
+
+choice
+	prompt "Processor core type"
+
+	config ARDUINO_UNO
+	bool "Arduino Uno"
+
+	config ARDUINO_NANO
+	bool "Arduino Nano"
+
+	config ARDUINO_PROMINI
+	bool "Arduino Pro Mini"
+
+	config ARDUINO_LEONARDO
+	bool "Arduino Leonardo (not supported yet)"
+endchoice
+
+config CFLAGS
+        string
+	default "-mmcu=atmega328p -DF_CPU=16000000" if ARDUINO_UNO
+	default "-mmcu=atmega328p -DF_CPU=16000000" if ARDUINO_NANO
+	default "-mmcu=atmega328p -DF_CPU=8000000" if ARDUINO_PROMINI
+

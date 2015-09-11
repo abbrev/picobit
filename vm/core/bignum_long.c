@@ -92,8 +92,8 @@ integer norm (obj prefix, integer n)
 			}
 		} else if (obj_eq (n, NEG1)) {
 			// -1 is an illegal literal in SIXPIC, thus the double negative
-			if (d >= (1 << digit_width) - (- MIN_FIXNUM)) {
-				n = ENCODE_FIXNUM (d - (1 << digit_width));
+			if (d >= (1UL << digit_width) - (- MIN_FIXNUM)) {
+				n = ENCODE_FIXNUM (d - (1UL << digit_width));
 				continue;
 			}
 		}
@@ -420,7 +420,7 @@ integer scale (digit n, integer x)
 			carry = carry - n;
 
 			// -1 as a literal is wrong with SIXPIC, thus the double negative
-			if (carry >= ((1<<digit_width) - (- MIN_FIXNUM))) {
+			if (carry >= ((1UL<<digit_width) - (- MIN_FIXNUM))) {
 				bignum_tmp1 = norm (bignum_tmp1, ENCODE_FIXNUM (carry));
 			} else {
 				bignum_tmp1 = norm (bignum_tmp1, make_integer (carry, NEG1));

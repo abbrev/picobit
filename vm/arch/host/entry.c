@@ -7,11 +7,13 @@
 
 uint8 ram_mem[RAM_BYTES + VEC_BYTES] = {0}, rom_mem[ROM_BYTES] = {0};
 
-void error (char *prim, char *msg)
+#if 0
+static void error (char *prim, char *msg)
 {
 	fprintf (stderr, "ERROR: %s: %s\n", prim, msg);
 	exit (1);
 }
+#endif
 
 void type_error (char *prim, char *type)
 {
@@ -20,18 +22,20 @@ void type_error (char *prim, char *type)
 	exit (1);
 }
 
-void write_hex_nibble (int n)
+#if 0
+static void write_hex_nibble (int n)
 {
 	putchar ("0123456789ABCDEF"[n]);
 }
 
-void write_hex (uint8 n)
+static void write_hex (uint8 n)
 {
 	write_hex_nibble (n >> 4);
 	write_hex_nibble (n & 0x0f);
 }
+#endif
 
-int hex (int c)
+static int hex (int c)
 {
 	if (c >= '0' && c <= '9') {
 		return (c - '0');
@@ -48,7 +52,7 @@ int hex (int c)
 	return -1;
 }
 
-int read_hex_byte (FILE *f)
+static int read_hex_byte (FILE *f)
 {
 	int h1 = hex (fgetc (f));
 	int h2 = hex (fgetc (f));
@@ -60,7 +64,7 @@ int read_hex_byte (FILE *f)
 	return -1;
 }
 
-int read_hex_file (char *filename)
+static int read_hex_file (char *filename)
 {
 	int c;
 	FILE *f = fopen (filename, "r");
@@ -170,7 +174,7 @@ next0:
 	return result;
 }
 
-void usage ()
+static void usage ()
 {
 	printf ("usage: sim file.hex\n");
 	exit (1);

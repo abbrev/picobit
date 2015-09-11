@@ -54,5 +54,5 @@ obj encode_int (uint16 n)   // TODO does not use the full 24 bits
 		return ENCODE_FIXNUM(n);
 	}
 
-	return alloc_ram_cell_init (BIGNUM_FIELD0, n >> 16, n >> 8, n);
+	return alloc_ram_cell_init (BIGNUM_FIELD0, (unsigned long)n >> 16, n >> 8, n);
 }

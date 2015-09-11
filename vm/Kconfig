@@ -19,6 +19,10 @@ choice
 	config	ARCH_ARM
 		bool "ARM microcontrollers"
 		select ARCH_32BIT
+
+	config	ARCH_ARDUINO
+		bool "Arduino"
+		select ARCH_8BIT
 endchoice
 
 config ERROR_HANDLING
@@ -37,6 +41,7 @@ config ARCH
 	string
 	default "host" if ARCH_HOST
 	default "arm" if ARCH_ARM
+	default "arduino" if ARCH_ARDUINO
 
 if ARCH_HOST
 source "arch/host/Kconfig"
@@ -44,6 +49,10 @@ endif
 
 if ARCH_ARM
 source "arch/arm/Kconfig"
+endif
+
+if ARCH_ARDUINO
+source "arch/arduino/Kconfig"
 endif
 
 source "core/Kconfig"
