@@ -144,7 +144,7 @@ next0:
 			sum = -sum;
 
 			if (sum != b) {
-				printf ("*** HEX file checksum error (expected 0x%02x)\n", sum);
+				fprintf (stderr, "*** HEX file checksum error (expected 0x%02x)\n", sum);
 				break;
 			}
 
@@ -161,7 +161,7 @@ next0:
 		}
 
 		if (result == 0) {
-			printf ("*** HEX file syntax error\n");
+			fprintf (stderr, "*** HEX file syntax error\n");
 		}
 
 		fclose (f);
@@ -172,7 +172,7 @@ next0:
 
 void usage ()
 {
-	printf ("usage: sim file.hex\n");
+	fprintf (stderr, "usage: sim file.hex\n");
 	exit (1);
 }
 
@@ -185,16 +185,16 @@ int main (int argc, char *argv[])
 	}
 
 	if (!read_hex_file (argv[1])) {
-		printf ("*** Could not read hex file \"%s\"\n", argv[1]);
+		fprintf (stderr, "*** Could not read hex file \"%s\"\n", argv[1]);
 	} else {
 		if (rom_get (CODE_START+0) != 0xfb ||
 		    rom_get (CODE_START+1) != 0xd7) {
-			printf ("*** The hex file was not compiled with PICOBIT\n");
+			fprintf (stderr, "*** The hex file was not compiled with PICOBIT\n");
 		} else {
 			interpreter ();
 
 #ifdef CONFIG_GC_DEBUG
-			printf ("**************** memory needed = %d\n", max_live + 1);
+			fprintf (stderr, "**************** memory needed = %d\n", max_live + 1);
 #endif
 		}
 	}
