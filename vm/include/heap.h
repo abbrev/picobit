@@ -51,7 +51,7 @@ uint16 OBJ_TO_RAM_ADDR(uint16 o, uint8 f)
 }
 uint16 OBJ_TO_ROM_ADDR(uint16 o, uint8 f)
 {
-	return ((((o) - MIN_ROM_ENCODING) << 2) + (CODE_START + 4 + (f)));
+	return ((((o) - MIN_ROM_ENCODING) << 2) + (4 + (f)));
 }
 uint16 VEC_TO_RAM_OBJ(uint16 o)
 {
@@ -63,7 +63,7 @@ uint16 RAM_TO_VEC_OBJ(uint16 o)
 }
 #else
 #define OBJ_TO_RAM_ADDR(o,f) ((((o) - MIN_RAM_ENCODING) << 2) + (f))
-#define OBJ_TO_ROM_ADDR(o,f) ((((o) - MIN_ROM_ENCODING) << 2) + (CODE_START + 4 + (f)))
+#define OBJ_TO_ROM_ADDR(o,f) ((((o) - MIN_ROM_ENCODING) << 2) + (4 + (f)))
 #define VEC_TO_RAM_OBJ(o) ((o) + MAX_RAM_ENCODING + 1)
 #define RAM_TO_VEC_OBJ(o) ((o) - MAX_RAM_ENCODING - 1)
 #endif
