@@ -27,18 +27,28 @@
 
 #include <arch/memory.h>
 
-#define MAX_VEC_ENCODING 8191U
-#define MIN_VEC_ENCODING 0
-#define VEC_BYTES ((MAX_VEC_ENCODING - MIN_VEC_ENCODING + 1)*4)
+// N.B. an encoding cannot exceed 8191!
 
-#define RAM_BYTES 1536U // XXX this should be moved to arch/memory.h
-#define MIN_RAM_ENCODING 1280U // XXX does this limit the ROM size??
+#define VEC_BYTES 32768
+#define MIN_VEC_ENCODING 0 // XXX any reason to set this to anything but 0?
+#define MAX_VEC_ENCODING (MIN_VEC_ENCODING + (VEC_BYTES/4) - 1)
+
+#define RAM_BYTES 6000 // XXX this should be moved to arch/memory.h
+#define MIN_RAM_ENCODING 6000 // XXX does this limit the ROM size??
 #define MAX_RAM_ENCODING (MIN_RAM_ENCODING + (RAM_BYTES/4) - 1)
 
 #define MIN_FIXNUM_ENCODING 3
 #define MIN_FIXNUM -1
 #define MAX_FIXNUM 256
 #define MIN_ROM_ENCODING (MIN_FIXNUM_ENCODING + MAX_FIXNUM - MIN_FIXNUM + 1)
+
+#if (MAX_VEC_ENCODING > 8191)
+#error MAX_VEC_ENCODING > 8191
+#endif
+
+#if (MAX_RAM_ENCODING > 8191)
+#error MAX_RAM_ENCODING > 8191
+#endif
 
 #define ZERO ENCODE_FIXNUM(0)
 #define NEG1 (ZERO-1)
