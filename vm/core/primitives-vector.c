@@ -42,7 +42,7 @@ PRIMITIVE(u8vector-ref, u8vector_ref, 2)
 			ERROR("u8vector-ref.0", "vector index invalid");
 		}
 
-		arg1 = VEC_TO_RAM_OBJ(ram_get_cdr (arg1));
+		arg1 = ram_get_cdr (arg1);
 	} else if (IN_ROM(arg1)) {
 		if (!ROM_VECTOR_P(arg1)) {
 			TYPE_ERROR("u8vector-ref.1", "vector");
@@ -97,7 +97,7 @@ PRIMITIVE_UNSPEC(u8vector-set!, u8vector_set, 3)
 			ERROR("u8vector-set!", "vector index invalid");
 		}
 
-		arg1 = VEC_TO_RAM_OBJ(ram_get_cdr (arg1));
+		arg1 = ram_get_cdr (arg1);
 	} else {
 		TYPE_ERROR("u8vector-set!.1", "vector");
 	}
