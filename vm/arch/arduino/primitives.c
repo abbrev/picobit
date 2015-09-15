@@ -70,6 +70,24 @@ PRIMITIVE_UNSPEC(#%led2-color, led2_color, 1)
 }
 #endif
 
+static int serial_read(int port)
+{
+	if ((UCSR0A & (1 << RXC0)) == 0)
+		return -1;
+
+	return UDR0;
+}
+
+static int serial_read_wait(int port)
+{
+	int c;
+
+	while ((c = serial_read(port)) == -1)
+		;
+
+	return c;
+}
+
 PRIMITIVE(#%getchar-wait, getchar_wait, 2)
 {
 	decode_2_int_args();
@@ -79,21 +97,26 @@ PRIMITIVE(#%getchar-wait, getchar_wait, 2)
 		ERROR("getchar-wait", "argument out of range");
 	}
 
-	arg1 = OBJ_FALSE;
+	arg1 = encode_int(serial_read_wait(a2));
+}
 
+static int serial_write(int port, int c)
+{
+	if ((UCSR0A & (1 << UDRE0)) == 0)
+		return -1;
 
-#ifdef PICOBOARD2
-	// TODO adapt to Arduino
-	{
-		serial_port_set ports;
-		ports = serial_rx_wait_with_timeout( a2, a1 );
+	UDR0 = c;
+	return (unsigned char)c;
+}
 
-		if (ports != 0) {
-			arg1 = encode_int (serial_rx_read( ports ));
-		}
-	}
-#endif
+static int serial_write_wait(int port, int c)
+{
+	int x;
 
+	while ((x = serial_write(port, c)) == -1)
+		;
+
+	return x;
 }
 
 PRIMITIVE(#%putchar, putchar, 2)
@@ -104,10 +127,7 @@ PRIMITIVE(#%putchar, putchar, 2)
 		ERROR("putchar", "argument out of range");
 	}
 
-#ifdef  PICOBOARD2
-	// TODO adapt to Arduino
-	serial_tx_write( a2, a1 );
-#endif
+	serial_write_wait(a2, a1);
 
 	arg1 = OBJ_FALSE;
 	arg2 = OBJ_FALSE;
