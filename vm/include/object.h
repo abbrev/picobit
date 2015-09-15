@@ -69,11 +69,11 @@
 // fixnum definitions in picobit-vm.h , address space layout section
 
 #ifdef LESS_MACROS
-uint16 ENCODE_FIXNUM(uint16 n)
+obj ENCODE_FIXNUM(int16 n)
 {
 	return ((n) + (MIN_FIXNUM_ENCODING - MIN_FIXNUM));
 }
-uint8  DECODE_FIXNUM(uint16 o)
+int16 DECODE_FIXNUM(obj o)
 {
 	return ((o) - (MIN_FIXNUM_ENCODING - MIN_FIXNUM));
 }
@@ -83,11 +83,11 @@ uint8  DECODE_FIXNUM(uint16 o)
 #endif
 
 #ifdef LESS_MACROS
-uint8 IN_RAM(uint16 o)
+uint8 IN_RAM(obj o)
 {
 	return ((o) >= MIN_RAM_ENCODING);
 }
-uint8 IN_ROM(uint16 o)
+uint8 IN_ROM(obj o)
 {
 	return (!IN_RAM(o) && ((o) >= MIN_ROM_ENCODING));
 }
@@ -99,11 +99,11 @@ uint8 IN_ROM(uint16 o)
 // bignum first byte : 00Gxxxxx
 #define BIGNUM_FIELD0 0
 #ifdef LESS_MACROS
-uint8 RAM_BIGNUM_P(uint16 o)
+uint8 RAM_BIGNUM_P(obj o)
 {
 	return ((ram_get_field0 (o) & 0xc0) == BIGNUM_FIELD0);
 }
-uint8 ROM_BIGNUM_P(uint16 o)
+uint8 ROM_BIGNUM_P(obj o)
 {
 	return ((rom_get_field0 (o) & 0xc0) == BIGNUM_FIELD0);
 }
@@ -115,11 +115,11 @@ uint8 ROM_BIGNUM_P(uint16 o)
 // composite first byte : 1GGxxxxx
 #define COMPOSITE_FIELD0 0x80
 #ifdef LESS_MACROS
-uint8 RAM_COMPOSITE_P(uint16 o)
+uint8 RAM_COMPOSITE_P(obj o)
 {
 	return ((ram_get_field0 (o) & 0x80) == COMPOSITE_FIELD0);
 }
-uint8 ROM_COMPOSITE_P(uint16 o)
+uint8 ROM_COMPOSITE_P(obj o)
 {
 	return ((rom_get_field0 (o) & 0x80) == COMPOSITE_FIELD0);
 }
@@ -131,11 +131,11 @@ uint8 ROM_COMPOSITE_P(uint16 o)
 // pair third byte : 000xxxxx
 #define PAIR_FIELD2 0
 #ifdef LESS_MACROS
-uint8 RAM_PAIR_P(uint16 o)
+uint8 RAM_PAIR_P(obj o)
 {
 	return (RAM_COMPOSITE_P (o) && ((ram_get_field2 (o) & 0xe0) == PAIR_FIELD2));
 }
-uint8 ROM_PAIR_P(uint16 o)
+uint8 ROM_PAIR_P(obj o)
 {
 	return (ROM_COMPOSITE_P (o) && ((rom_get_field2 (o) & 0xe0) == PAIR_FIELD2));
 }
@@ -147,11 +147,11 @@ uint8 ROM_PAIR_P(uint16 o)
 // symbol third byte : 001xxxxx
 #define SYMBOL_FIELD2 0x20
 #ifdef LESS_MACROS
-uint8 RAM_SYMBOL_P(uint16 o)
+uint8 RAM_SYMBOL_P(obj o)
 {
 	return (RAM_COMPOSITE_P (o) && ((ram_get_field2 (o) & 0xe0) == SYMBOL_FIELD2));
 }
-uint8 ROM_SYMBOL_P(uint16 o)
+uint8 ROM_SYMBOL_P(obj o)
 {
 	return (ROM_COMPOSITE_P (o) && ((rom_get_field2 (o) & 0xe0) == SYMBOL_FIELD2));
 }
@@ -163,11 +163,11 @@ uint8 ROM_SYMBOL_P(uint16 o)
 // string third byte : 010xxxxx
 #define STRING_FIELD2 0x40
 #ifdef LESS_MACROS
-uint8 RAM_STRING_P(uint16 o)
+uint8 RAM_STRING_P(obj o)
 {
 	return (RAM_COMPOSITE_P (o) && ((ram_get_field2 (o) & 0xe0) == STRING_FIELD2));
 }
-uint8 ROM_STRING_P(uint16 o)
+uint8 ROM_STRING_P(obj o)
 {
 	return (ROM_COMPOSITE_P (o) && ((rom_get_field2 (o) & 0xe0) == STRING_FIELD2));
 }
@@ -179,11 +179,11 @@ uint8 ROM_STRING_P(uint16 o)
 // u8vector third byte : 011xxxxx
 #define VECTOR_FIELD2 0x60
 #ifdef LESS_MACROS
-uint8 RAM_VECTOR_P(uint16 o)
+uint8 RAM_VECTOR_P(obj o)
 {
 	return (RAM_COMPOSITE_P (o) && ((ram_get_field2 (o) & 0xe0) == VECTOR_FIELD2));
 }
-uint8 ROM_VECTOR_P(uint16 o)
+uint8 ROM_VECTOR_P(obj o)
 {
 	return (ROM_COMPOSITE_P (o) && ((rom_get_field2 (o) & 0xe0) == VECTOR_FIELD2));
 }
@@ -195,11 +195,11 @@ uint8 ROM_VECTOR_P(uint16 o)
 // continuation third byte : 100xxxxx
 #define CONTINUATION_FIELD2 0x80
 #ifdef LESS_MACROS
-uint8 RAM_CONTINUATION_P(uint16 o)
+uint8 RAM_CONTINUATION_P(obj o)
 {
 	return (RAM_COMPOSITE_P (o) && ((ram_get_field2 (o) & 0xe0) == CONTINUATION_FIELD2));
 }
-uint8 ROM_CONTINUATION_P(uint16 o)
+uint8 ROM_CONTINUATION_P(obj o)
 {
 	return (ROM_COMPOSITE_P (o) && ((rom_get_field2 (o) & 0xe0) == CONTINUATION_FIELD2));
 }
@@ -212,7 +212,7 @@ uint8 ROM_CONTINUATION_P(uint16 o)
 // closures are only found in RAM
 #define CLOSURE_FIELD0 0x40
 #ifdef LESS_MACROS
-uint8 RAM_CLOSURE_P(uint16 o)
+uint8 RAM_CLOSURE_P(obj o)
 {
 	return ((ram_get_field0 (o) & 0xc0) == CLOSURE_FIELD0);
 }

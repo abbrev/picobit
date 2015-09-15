@@ -9,18 +9,18 @@
 
 /* Number of object fields of objects in ram */
 #ifdef LESS_MACROS
-uint8 HAS_2_OBJECT_FIELDS(uint16 visit)
+uint8 HAS_2_OBJECT_FIELDS(obj visit)
 {
 	return (RAM_PAIR_P(visit) || RAM_CONTINUATION_P(visit));
 }
 
 #ifdef CONFIG_BIGNUM_LONG
-uint8 HAS_1_OBJECT_FIELD(uint16 visit)
+uint8 HAS_1_OBJECT_FIELD(obj visit)
 {
 	return (RAM_COMPOSITE_P(visit) || RAM_CLOSURE_P(visit) || RAM_BIGNUM_P(visit));
 }
 #else
-uint8 HAS_1_OBJECT_FIELD(uint16 visit)
+uint8 HAS_1_OBJECT_FIELD(obj visit)
 {
 	return (RAM_COMPOSITE_P(visit) || RAM_CLOSURE_P(visit));
 }

@@ -45,11 +45,11 @@
 #define POS1 (ZERO+1)
 
 #ifdef LESS_MACROS
-uint16 OBJ_TO_RAM_ADDR(uint16 o, uint8 f)
+ram_addr OBJ_TO_RAM_ADDR(obj o, uint8 f)
 {
 	return ((((o) - MIN_RAM_ENCODING) << 2) + (f));
 }
-uint16 OBJ_TO_ROM_ADDR(uint16 o, uint8 f)
+rom_addr OBJ_TO_ROM_ADDR(obj o, uint8 f)
 {
 	return ((((o) - MIN_ROM_ENCODING) << 2) + (CODE_START + 4 + (f)));
 }
@@ -69,15 +69,15 @@ uint16 RAM_TO_VEC_OBJ(uint16 o)
 #endif
 
 #ifdef LESS_MACROS
-uint8 ram_get_field0(uint16 o)
+uint8 ram_get_field0(obj o)
 {
 	return ram_get (OBJ_TO_RAM_ADDR(o,0));
 }
-void  ram_set_field0(uint16 o, uint8 val)
+void  ram_set_field0(obj o, uint8 val)
 {
 	ram_set (OBJ_TO_RAM_ADDR(o,0), val);
 }
-uint8 rom_get_field0(uint16 o)
+uint8 rom_get_field0(obj o)
 {
 	return rom_get (OBJ_TO_ROM_ADDR(o,0));
 }
@@ -88,27 +88,27 @@ uint8 rom_get_field0(uint16 o)
 #endif
 
 #ifdef LESS_MACROS
-uint8 ram_get_gc_tags(uint16 o)
+uint8 ram_get_gc_tags(obj o)
 {
 	return (ram_get_field0(o) & 0x60);
 }
-uint8 ram_get_gc_tag0(uint16 o)
+uint8 ram_get_gc_tag0(obj o)
 {
 	return (ram_get_field0(o) & 0x20);
 }
-uint8 ram_get_gc_tag1(uint16 o)
+uint8 ram_get_gc_tag1(obj o)
 {
 	return (ram_get_field0(o) & 0x40);
 }
-void  ram_set_gc_tags(uint16 o, uint8 tags)
+void  ram_set_gc_tags(obj o, uint8 tags)
 {
 	ram_set_field0(o,(ram_get_field0(o) & 0x9f) | (tags));
 }
-void  ram_set_gc_tag0(uint16 o, uint8 tag)
+void  ram_set_gc_tag0(obj o, uint8 tag)
 {
 	ram_set_field0(o,(ram_get_field0(o) & 0xdf) | (tag));
 }
-void  ram_set_gc_tag1(uint16 o, uint8 tag)
+void  ram_set_gc_tag1(obj o, uint8 tag)
 {
 	ram_set_field0(o,(ram_get_field0(o) & 0xbf) | (tag));
 }
@@ -125,39 +125,39 @@ void  ram_set_gc_tag1(uint16 o, uint8 tag)
 #endif
 
 #ifdef LESS_MACROS
-uint8 ram_get_field1(uint16 o)
+uint8 ram_get_field1(obj o)
 {
 	return ram_get (OBJ_TO_RAM_ADDR(o,1));
 }
-uint8 ram_get_field2(uint16 o)
+uint8 ram_get_field2(obj o)
 {
 	return ram_get (OBJ_TO_RAM_ADDR(o,2));
 }
-uint8 ram_get_field3(uint16 o)
+uint8 ram_get_field3(obj o)
 {
 	return ram_get (OBJ_TO_RAM_ADDR(o,3));
 }
-void  ram_set_field1(uint16 o, uint8 val)
+void  ram_set_field1(obj o, uint8 val)
 {
 	ram_set (OBJ_TO_RAM_ADDR(o,1), val);
 }
-void  ram_set_field2(uint16 o, uint8 val)
+void  ram_set_field2(obj o, uint8 val)
 {
 	ram_set (OBJ_TO_RAM_ADDR(o,2), val);
 }
-void  ram_set_field3(uint16 o, uint8 val)
+void  ram_set_field3(obj o, uint8 val)
 {
 	ram_set (OBJ_TO_RAM_ADDR(o,3), val);
 }
-uint8 rom_get_field1(uint16 o)
+uint8 rom_get_field1(obj o)
 {
 	return rom_get (OBJ_TO_ROM_ADDR(o,1));
 }
-uint8 rom_get_field2(uint16 o)
+uint8 rom_get_field2(obj o)
 {
 	return rom_get (OBJ_TO_ROM_ADDR(o,2));
 }
-uint8 rom_get_field3(uint16 o)
+uint8 rom_get_field3(obj o)
 {
 	return rom_get (OBJ_TO_ROM_ADDR(o,3));
 }
