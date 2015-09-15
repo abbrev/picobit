@@ -8,6 +8,6 @@ extern uint8 __picobit_heap;
 #define ram_get(a) ((uint8*)&__picobit_heap)[a]
 #define ram_set(a,x) ((uint8*)&__picobit_heap)[a] = (x)
 
-#define rom_get(a) (((uint8*) 0)[a])
+#define rom_get(a) (((uint8*) CODE_START)[a])
 
 #endif

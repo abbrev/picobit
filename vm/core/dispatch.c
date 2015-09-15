@@ -48,7 +48,7 @@ void pop_procedure ()
 			TYPE_ERROR("pop_procedure.0", "procedure");
 		}
 
-		entry = ram_get_entry (arg1) + CODE_START;
+		entry = ram_get_entry (arg1);
 	} else {
 		TYPE_ERROR("pop_procedure.1", "procedure");
 	}
@@ -124,10 +124,10 @@ static uint8 bytecode, bytecode_hi4, bytecode_lo4;
 
 void interpreter ()
 {
-	pc = rom_get (CODE_START+2);
-	pc = (CODE_START + 4) + (pc << 2);
+	pc = rom_get (2);
+	pc = 4 + (pc << 2);
 
-	glovars = rom_get (CODE_START+3); // number of global variables
+	glovars = rom_get (3); // number of global variables
 
 	init_ram_heap ();
 
@@ -260,9 +260,9 @@ dispatch:
 			FETCH_NEXT_BYTECODE();
 
 			IF_TRACE(printf("  (call-toplevel 0x%04x)\n",
-			                ((arg2 << 8) | bytecode) + CODE_START));
+			                ((arg2 << 8) | bytecode)));
 
-			entry = (arg2 << 8) + bytecode + CODE_START;
+			entry = (arg2 << 8) + bytecode;
 			arg1 = OBJ_NULL;
 
 			build_env (rom_get (entry++));
@@ -283,9 +283,9 @@ dispatch:
 			FETCH_NEXT_BYTECODE();
 
 			IF_TRACE(printf("  (jump-toplevel 0x%04x)\n",
-			                ((arg2 << 8) | bytecode) + CODE_START));
+			                ((arg2 << 8) | bytecode)));
 
-			entry = (arg2 << 8) + bytecode + CODE_START;
+			entry = (arg2 << 8) + bytecode;
 			arg1 = OBJ_NULL;
 
 			build_env (rom_get (entry++));
@@ -305,9 +305,9 @@ dispatch:
 			FETCH_NEXT_BYTECODE();
 
 			IF_TRACE(printf("  (goto 0x%04x)\n",
-			                (arg2 << 8) + bytecode + CODE_START));
+			                (arg2 << 8) + bytecode));
 
-			pc = (arg2 << 8) + bytecode + CODE_START;
+			pc = (arg2 << 8) + bytecode;
 
 			break;
 
@@ -318,10 +318,10 @@ dispatch:
 			FETCH_NEXT_BYTECODE();
 
 			IF_TRACE(printf("  (goto-if-false 0x%04x)\n",
-			                (arg2 << 8) + bytecode + CODE_START));
+			                (arg2 << 8) + bytecode));
 
 			if (pop() == OBJ_FALSE) {
-				pc = (arg2 << 8) + bytecode + CODE_START;
+				pc = (arg2 << 8) + bytecode;
 			}
 
 			break;
@@ -409,7 +409,7 @@ dispatch:
 		case 9: // closure-rel8
 			FETCH_NEXT_BYTECODE();
 
-			entry = pc - CODE_START + bytecode - 128;
+			entry = pc + bytecode - 128;
 
 			IF_TRACE(printf("  (closure-rel8 0x%04x)\n", entry));
 

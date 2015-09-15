@@ -104,7 +104,7 @@ static int read_hex_file (char *filename)
 next0:
 
 				if (i < len) {
-					unsigned long adr = ((unsigned long)hi16 << 16) + a - CODE_START;
+					unsigned long adr = ((unsigned long)hi16 << 16) + a;
 
 					if ((b = read_hex_byte (f)) < 0) {
 						break;
@@ -191,8 +191,8 @@ int main (int argc, char *argv[])
 	if (!read_hex_file (argv[1])) {
 		printf ("*** Could not read hex file \"%s\"\n", argv[1]);
 	} else {
-		if (rom_get (CODE_START+0) != 0xfb ||
-		    rom_get (CODE_START+1) != 0xd7) {
+		if (rom_get (0) != 0xfb ||
+		    rom_get (1) != 0xd7) {
 			printf ("*** The hex file was not compiled with PICOBIT\n");
 		} else {
 			interpreter ();
