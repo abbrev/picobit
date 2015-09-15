@@ -32,8 +32,8 @@ int main (int argc, char *argv[])
 	// TODO initialize stuff here
 	uart_init();
 
-	if (rom_get (CODE_START+0) == 0xfb &&
-	    rom_get (CODE_START+1) == 0xd7) {
+	if (rom_get (0) == 0xfb &&
+	    rom_get (1) == 0xd7) {
 		interpreter ();
 	}
 

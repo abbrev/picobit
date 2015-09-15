@@ -5,8 +5,6 @@
 
 #include <avr/pgmspace.h>
 
-#define CODE_START 0x4000 // XXX where does the VM end?
-
 extern uint8_t ram_mem[];
 
 #define RAM(a) ram_mem[(uint16_t)(a)]
