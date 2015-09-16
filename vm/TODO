@@ -1,0 +1,14 @@
+minimum needed to be "arduino" compatible:
+* serial
+* pin control (digitalWrite, digitalRead, analogRead, analogWrite, pinMode, etc)
+
+* somehow build the vm with a compiled scheme program built in (this is
+  the biggest hurdle, IMO)
+  * building the compiler needs the vm to build successfully. here's one
+    hackish way to do that:
+    * build the vm with a dummy rom
+    * replace the rom with the actual rom
+    * build the vm again
+  * https://github.com/kototama/picobit hardcodes the picobit ROM start
+    address to 0x5000 and manually merges the picobit VM and compiled
+    hex file together.
