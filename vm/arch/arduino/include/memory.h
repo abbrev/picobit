@@ -11,7 +11,9 @@ extern uint8_t ram_mem[];
 #define ram_get(a) RAM(a)
 #define ram_set(a,x) (RAM(a) = (x))
 
+extern const uint8_t rom_mem[] PROGMEM;
+
 //#define ROM_BYTES 8192
-#define rom_get(a) pgm_read_byte(a)
+#define rom_get(a) pgm_read_byte(&rom_mem[a])
 
 #endif
