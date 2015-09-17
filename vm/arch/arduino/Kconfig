@@ -11,8 +11,11 @@ choice
 	config ARDUINO_NANO
 	bool "Arduino Nano"
 
-	config ARDUINO_PROMINI
-	bool "Arduino Pro Mini"
+	config ARDUINO_PROMINI_16
+	bool "Arduino Pro Mini 5V/16MHz"
+
+	config ARDUINO_PROMINI_8
+	bool "Arduino Pro Mini 3.3V/8MHz"
 
 	config ARDUINO_LEONARDO
 	bool "Arduino Leonardo (not supported yet)"
@@ -22,5 +25,6 @@ config CFLAGS
         string
 	default "-mmcu=atmega328p -DF_CPU=16000000" if ARDUINO_UNO
 	default "-mmcu=atmega328p -DF_CPU=16000000" if ARDUINO_NANO
-	default "-mmcu=atmega328p -DF_CPU=8000000" if ARDUINO_PROMINI
+	default "-mmcu=atmega328p -DF_CPU=16000000" if ARDUINO_PROMINI_16
+	default "-mmcu=atmega328p -DF_CPU=8000000" if ARDUINO_PROMINI_8
 
