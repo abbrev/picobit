@@ -28,3 +28,25 @@ config CFLAGS
 	default "-mmcu=atmega328p -DF_CPU=16000000" if ARDUINO_PROMINI_16
 	default "-mmcu=atmega328p -DF_CPU=8000000" if ARDUINO_PROMINI_8
 
+config NETWORKING
+	bool "Networking"
+	help
+	 Enable support for networking devices.
+
+choice
+	prompt "Network interface" if NETWORKING
+	help
+	 Select the network interface to use.
+
+	config NETWORKING_SLIP
+		bool "SLIP"
+		help
+		 Plain Serial Line Internet Protocol over hardware serial line.
+
+	config NETWORKING_ENC28J60
+		bool "Microchip ENC28J60"
+
+	config NETWORKING_W5200
+		bool "Wiznet W5200"
+
+endchoice
