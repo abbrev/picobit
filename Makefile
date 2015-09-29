@@ -15,7 +15,16 @@ compiler/gen.config.rkt:
 compiler/gen.library.scm:
 	make -C vm ../compiler/gen.library.scm
 
+%.hex: %.scm compiler
+	./picobit $<
+
+%.bin: %.hex
+	objcopy -I ihex -O binary $< $@
+
 vm:
+	@if [ -z "$(SCM_FILE)" ]; then echo >&2 "Please specify SCM_FILE!"; false; fi
+	make $(SCM_FILE:scm=bin)
+	xxd -i <$(SCM_FILE:scm=bin) >vm/arch/arduino/rom_mem.hex
 	make -C vm
 	[ -e vm/picobit-vm ] && cp vm/picobit-vm . || rm -f picobit-vm
 

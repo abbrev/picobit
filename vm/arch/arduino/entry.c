@@ -9,6 +9,9 @@
 #include <avr/io.h>
 
 uint8_t ram_mem[RAM_BYTES + VEC_BYTES];
+const uint8_t rom_mem[] PROGMEM = {
+#include "rom_mem.hex"
+};
 
 void halt_with_error ()
 {
