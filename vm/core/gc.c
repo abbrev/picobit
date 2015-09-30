@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <picobit.h>
 #include <bignum.h>
 #include <debug.h>
@@ -333,7 +334,7 @@ void compact ()
 
 obj alloc_vec_cell (uint16 n, obj from)
 {
-	uint8 gc_done = 0;
+	bool gc_done = 0;
 
 #ifdef CONFIG_GC_DEBUG
 	gc ();

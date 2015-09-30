@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <picobit.h>
 #include <bignum.h>
 #include <debug.h>
@@ -105,7 +106,7 @@ integer norm (obj prefix, integer n)
 	return n;
 }
 
-uint8 negp (integer x)
+bool negp (integer x)
 {
 	/* negp(x) returns true iff x is negative */
 
@@ -113,11 +114,11 @@ uint8 negp (integer x)
 		x = integer_hi (x);
 
 		if (obj_eq (x, ZERO)) {
-			return 0;
+			return false;
 		}
 	} while (!obj_eq (x, NEG1));
 
-	return 1;
+	return true;
 }
 
 uint8 cmp (integer x, integer y)

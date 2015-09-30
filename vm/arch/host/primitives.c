@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <picobit.h>
 #include <primitives.h>
 #include <bignum.h>
@@ -26,7 +27,7 @@ void show (obj o)
 	} else if (o <= (MIN_FIXNUM_ENCODING + (MAX_FIXNUM - MIN_FIXNUM))) {
 		printf ("%d", DECODE_FIXNUM(o));
 	} else {
-		uint8 in_ram;
+		bool in_ram;
 
 		if (IN_RAM(o)) {
 			in_ram = 1;

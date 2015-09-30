@@ -1,6 +1,7 @@
 #ifndef PICOBIT_BIGNUM_H
 #define PICOBIT_BIGNUM_H
 
+#include <stdbool.h>
 #include <picobit.h>
 
 uint16 decode_int (obj o);
@@ -30,7 +31,7 @@ integer integer_hi (integer x);
 digit integer_lo (integer x);
 
 integer norm (obj prefix, integer n);
-uint8 negp (integer x);
+bool negp (integer x);
 uint8 cmp (integer x, integer y);
 uint16 integer_length (integer x);
 integer shr (integer x);
