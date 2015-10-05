@@ -24,12 +24,6 @@
         #f)))
 
 
-(define led2-color
-  (lambda (state)
-    (if (eq? state 'red)
-        (#%led2-color 1)
-        (#%led2-color 0))))
-
 (define display
   (lambda (x)
     (if (string? x)
