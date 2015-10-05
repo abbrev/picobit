@@ -16,7 +16,7 @@ extern const char* const primitive_names[];
 #endif /* NO_PRIMITIVE_EXPAND */
 
 /* Temporary storage for primitives */
-extern obj a1, a2, a3;
+extern uint16 a1, a2, a3;
 
 void decode_2_int_args ();
 void push_arg1 ();

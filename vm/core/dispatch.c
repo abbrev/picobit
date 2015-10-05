@@ -21,7 +21,7 @@
 
 obj cont, env;
 obj arg1, arg2, arg3, arg4;
-obj a1, a2, a3;
+uint16 a1, a2, a3;
 
 rom_addr pc, entry;
 uint8 glovars;
