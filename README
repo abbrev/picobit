@@ -1,3 +1,20 @@
+This is the beginning of a port of the Picobit Scheme system to the
+Arduino architecture.
+
+This port attempts, or will attempt, to solve the following challenges:
+
+* Restricting the VM to the limited memory.
+* Loading compiled Picobit bytecode into ROM.
+* Implementing basic Arduino functionality (millis/micros, serial
+  read/write, digital read/write, analog read/write, etc.) in a
+  Scheme-friendly way.
+* Supporting network interfaces (SLIP, Microchip, Wiznet, etc. network
+  interface devices)
+
+The original README for Picobit follows:
+
+========================================================================
+
 This is a very small Scheme system designed to run on small
 microcontrollers, currently PIC18 and ARM.
 
