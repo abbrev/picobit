@@ -21,6 +21,10 @@ compiler/gen.library.scm:
 %.bin: %.hex
 	objcopy -I ihex -O binary $< $@
 
+ifeq ($(SCM_FILE),)
+SCM_FILE := app.scm
+endif
+
 vm:
 	@if [ -z "$(SCM_FILE)" ]; then echo >&2 "Please specify SCM_FILE!"; false; fi
 	make $(SCM_FILE:scm=bin)
