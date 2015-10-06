@@ -46,7 +46,7 @@ choice
 	config NETWORKING_ENC28J60
 		bool "Microchip ENC28J60"
 
-	config NETWORKING_W5200
-		bool "Wiznet W5200"
+	config NETWORKING_W5x00
+		bool "Wiznet W5100/W5200"
 
 endchoice

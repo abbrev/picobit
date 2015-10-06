@@ -175,28 +175,21 @@ PRIMITIVE(sernum, sernum, 0)
 
 /*---------------------------------------------------------------------------*/
 
+#ifdef CONFIG_NETWORKING
+
+#include "net.h"
+
 // networking primitives
 // to enable them, compilation must be done with the -lpcap option
 
 PRIMITIVE_UNSPEC(network-init, network_init, 0)
 {
-	// TODO maybe put in the initialization of the vm
-#ifdef NETWORKING
-	handle = pcap_open_live(INTERFACE, MAX_PACKET_SIZE, PROMISC, TO_MSEC, errbuf);
-
-	if (handle == NULL) {
-		ERROR("network-init", "interface not responding");
-	}
-
-#endif
+	network_init();
 }
 
 PRIMITIVE_UNSPEC(network-cleanup, network_cleanup, 0)
 {
-	// TODO maybe put in halt ?
-#ifdef NETWORKING
-	pcap_close(handle);
-#endif
+	network_cleanup();
 }
 
 PRIMITIVE(receive-packet-to-u8vector, receive_packet_to_u8vector, 1)
@@ -206,38 +199,15 @@ PRIMITIVE(receive-packet-to-u8vector, receive_packet_to_u8vector, 1)
 		TYPE_ERROR("receive-packet-to-u8vector", "vector");
 	}
 
-#ifdef NETWORKING
-	// receive the packet in the buffer
-	struct pcap_pkthdr header;
-	const u_char *packet;
+	uint16 len = receive_packet_to_u8vector(arg1);
 
-	packet = pcap_next(handle, &header);
-
-	if (packet == NULL) {
-		header.len = 0;
-	}
-
-	if (ram_get_car (arg1) < header.len) {
-		ERROR("receive-packet-to-u8vector", "packet longer than vector");
-	}
-
-	if (header.len > 0) { // we have received a packet, write it in the vector
-		arg2 = VEC_TO_RAM_OBJ(ram_get_cdr (arg1));
-		arg1 = header.len; // we return the length of the received packet
-		a1 = 0;
-
-		while (a1 < arg1) {
-			ram_set_fieldn (arg2, a1 % 4, (char)packet[a1]);
-			a1++;
-			arg2 += (a1 % 4) ? 0 : 1;
-		}
-
+	if (len > 0) {
+		arg1 = encode_int (len);
 		arg2 = OBJ_FALSE;
-	} else { // no packet to be read
+	} else {
 		arg1 = OBJ_FALSE;
+		// XXX arg2?
 	}
-
-#endif
 }
 
 PRIMITIVE(send-packet-from-u8vector, send_packet_from_u8vector, 2)
@@ -249,34 +219,15 @@ PRIMITIVE(send-packet-from-u8vector, send_packet_from_u8vector, 2)
 		TYPE_ERROR("send-packet-from-vector!", "vector");
 	}
 
-	a2 = decode_int (arg2); // TODO fix for bignums
-	a1 = 0;
-
-#ifdef NETWORKING
-
 	// TODO test if the length of the packet is longer than the length of the vector
 	if (ram_get_car (arg1) < a2) {
 		ERROR("send-packet-from-u8vector", "packet cannot be longer than vector");
 	}
 
-	arg1 = VEC_TO_RAM_OBJ(ram_get_cdr (arg1));
+	uint8 b = send_packet_from_u8vector(arg1, decode_int (arg2));
 
-	// copy the packet to the output buffer
-	while (a1 < a2) {
-		buf[a1] = ram_get_fieldn (arg1, a1 % 4);
-		a1++;
-		arg1 += (a1 % 4) ? 0 : 1;
-	}
-
-	// TODO maybe I could just give pcap the pointer to the memory
-
-	if (pcap_sendpacket(handle, buf, a2) < 0) { // TODO an error has occurred, can we reuse the interface ?
-		arg1 = OBJ_FALSE;
-	} else {
-		arg1 = OBJ_TRUE;
-	}
-
-#endif
-
+	arg1 = encode_bool(b);
 	arg2 = OBJ_FALSE;
 }
+
+#endif
