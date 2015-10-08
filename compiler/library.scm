@@ -150,8 +150,14 @@
     (length (string->list str))))
 
 (define string-append
-  (lambda (str1 str2)
-    (list->string (append (string->list str1) (string->list str2)))))
+  (lambda (str . rest)
+    (list->string (#%string-append-aux (string->list str) rest))))
+
+(define #%string-append-aux
+  (lambda (lst rest)
+    (if (null? rest)
+        lst
+        (#%string-append-aux (append lst (string->list (car rest))) (cdr rest)))))
 
 (define substring
   (lambda (str start end)
