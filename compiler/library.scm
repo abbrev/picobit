@@ -171,6 +171,27 @@
   (and (char=? (car lst1) (car lst2))
        (#%string=?-aux (cdr lst1) (cdr lst2)))))
 
+(define (string<? str1 str2)
+  (if (eq? str1 str2)
+    #f
+    (#%string<?-aux (string->list str1) (string->list str2))))
+
+; I'm sure this could be slimmed down
+(define (#%string<?-aux lst1 lst2)
+  (cond
+   ((null? lst2)
+    #f)
+   ((null? lst1)
+    #t)
+   ((char=? (car lst1) (car lst2))
+    (#%string<?-aux (cdr lst1) (cdr lst2)))
+   (else
+    (char<? (car lst1) (car lst2)))))
+
+(define (string>? str1 str2) (string<? str2 str1))
+(define (string<=? str1 str2) (or (string<? str1 str2) (string=? str1 str2)))
+(define (string>=? str1 str2) (or (string>? str1 str2) (string=? str1 str2)))
+
 (define string-length
   (lambda (str)
     (length (string->list str))))
