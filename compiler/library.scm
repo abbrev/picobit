@@ -1,14 +1,14 @@
 (define +
   (lambda (x . rest)
-    (if (pair? rest)
-        (#%+-aux x rest)
-        x)))
+    (if (null? rest)
+        x
+        (#%+-aux x rest))))
 
 (define #%+-aux
   (lambda (x rest)
-    (if (pair? rest)
-        (#%+-aux (#%+ x (car rest)) (cdr rest))
-        x)))
+    (if (null? rest)
+        x
+        (#%+-aux (#%+ x (car rest)) (cdr rest)))))
 
 (define neg
   (lambda (x)
@@ -16,27 +16,27 @@
 
 (define -
   (lambda (x . rest)
-    (if (pair? rest)
-        (#%--aux x rest)
-        (neg x))))
+    (if (null? rest)
+        (neg x)
+        (#%--aux x rest))))
 
 (define #%--aux
   (lambda (x rest)
-    (if (pair? rest)
-        (#%--aux (#%- x (car rest)) (cdr rest))
-        x)))
+    (if (null? rest)
+        x
+        (#%--aux (#%- x (car rest)) (cdr rest)))))
 
 (define *
   (lambda (x . rest)
-    (if (pair? rest)
-        (#%*-aux x rest)
-        x)))
+    (if (null? rest)
+        x
+        (#%*-aux x rest))))
 
 (define #%*-aux
   (lambda (x rest)
-    (if (pair? rest)
-        (#%*-aux (#%mul x (car rest)) (cdr rest))
-        x)))
+    (if (null? rest)
+        x
+        (#%*-aux (#%mul x (car rest)) (cdr rest)))))
 
 (define #%mul
   (lambda (x y)
@@ -86,15 +86,15 @@
 
 (define #%length-aux
   (lambda (lst n)
-    (if (pair? lst)
-        (#%length-aux (cdr lst) (#%+ n 1))
-        n)))
+    (if (null? lst)
+        n
+        (#%length-aux (cdr lst) (#%+ n 1)))))
 
 (define append
   (lambda (lst1 lst2)
-    (if (pair? lst1)
-        (cons (car lst1) (append (cdr lst1) lst2))
-        lst2)))
+    (if (null? lst1)
+        lst2
+        (cons (car lst1) (append (cdr lst1) lst2)))))
 
 (define reverse
   (lambda (lst)
@@ -102,9 +102,9 @@
 
 (define #%reverse-aux
   (lambda (lst rev)
-    (if (pair? lst)
-        (#%reverse-aux (cdr lst) (cons (car lst) rev))
-        rev)))
+    (if (null? lst)
+        rev
+        (#%reverse-aux (cdr lst) (cons (car lst) rev)))))
 
 (define list-ref
   (lambda (lst i)
