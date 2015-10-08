@@ -157,6 +157,20 @@
    lst
    (#%make-string-aux (- len 1) c (cons c lst))))
 
+; picobit implements characters as plain integers
+(define (char=? c1 c2) (= c1 c2))
+(define (char<? c1 c2) (< c1 c2))
+
+(define (string=? str1 str2)
+  (or (eq? str1 str2)
+      (#%string=?-aux (string->list str1) (string->list str2))))
+
+(define (#%string=?-aux lst1 lst2)
+ (if (null? lst1)
+  (null? lst2)
+  (and (char=? (car lst1) (car lst2))
+       (#%string=?-aux (cdr lst1) (cdr lst2)))))
+
 (define string-length
   (lambda (str)
     (length (string->list str))))
@@ -303,6 +317,8 @@
   (lambda (x y)
     (cond ((eq? x y)
 	   #t)
+	  ((and (string? x) (string? y))
+	   (string=? x y))
 	  ((and (pair? x) (pair? y))
 	   (and (equal? (car x) (car y))
 		(equal? (cdr x) (cdr y))))
