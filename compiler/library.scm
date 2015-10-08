@@ -145,6 +145,18 @@
   (lambda chars
     (list->string chars)))
 
+; XXX make-string has limited usefulness without string functions like
+; string-ref and string-set!
+(define make-string
+  (lambda (len . rest)
+    (let ((c (if (null? rest) #\space (car rest))))
+     (list->string (#%make-string-aux len c '())))))
+
+(define (#%make-string-aux len c lst)
+  (if (= len 0)
+   lst
+   (#%make-string-aux (- len 1) c (cons c lst))))
+
 (define string-length
   (lambda (str)
     (length (string->list str))))
