@@ -77,6 +77,10 @@
   (lambda (x y)
     (or (> x y) (= x y))))
 
+(define (zero?     z) (= z 0))
+(define (positive? x) (> x 0))
+(define (negative? x) (< x 0))
+
 (define list
   (lambda lst lst))
 
