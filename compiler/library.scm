@@ -106,17 +106,19 @@
         (#%reverse-aux (cdr lst) (cons (car lst) rev))
         rev)))
 
-(define list-ref
+(define list-tail
   (lambda (lst i)
     (if (= i 0)
-        (car lst)
-        (list-ref (cdr lst) (#%- i 1)))))
+      lst
+      (list-tail (cdr lst) (#%- i 1)))))
+
+(define list-ref
+  (lambda (lst i)
+    (car (list-tail lst i))))
 
 (define list-set!
   (lambda (lst i x)
-    (if (= i 0)
-        (set-car! lst x)
-        (list-set! (cdr lst) (#%- i 1) x))))
+    (set-car! (list-tail lst i) x)))
 
 (define max
   (lambda (x y)
