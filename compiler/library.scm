@@ -167,12 +167,10 @@
 (define make-string
   (lambda (len . rest)
     (let ((c (if (null? rest) #\space (car rest))))
-     (list->string (#%make-string-aux len c '())))))
-
-(define (#%make-string-aux len c lst)
-  (if (zero? len)
-   lst
-   (#%make-string-aux (#%- len 1) c (cons c lst))))
+     (list->string (let loop ((len len) (lst '()))
+                    (if (zero? len)
+                     lst
+                     (loop (#%- len 1) (cons c lst))))))))
 
 ; picobit implements characters as plain integers
 (define (char=? c1 c2) (#%= c1 c2))
@@ -215,13 +213,10 @@
 
 (define string-append
   (lambda (str . rest)
-    (list->string (#%string-append-aux (string->list str) rest))))
-
-(define #%string-append-aux
-  (lambda (lst rest)
-    (if (null? rest)
-        lst
-        (#%string-append-aux (append lst (string->list (car rest))) (cdr rest)))))
+    (list->string (let loop ((lst (string->list str)) (rest rest))
+                   (if (null? rest)
+                    lst
+                    (loop (append lst (string->list (car rest))) (cdr rest)))))))
 
 (define substring
   (lambda (str start end)
