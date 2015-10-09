@@ -67,13 +67,23 @@
        (loop (quotient x (car rest)) (cdr rest)))))))
 
 
-(define <=
-  (lambda (x y)
-    (or (< x y) (= x y))))
+(define (#%cmp-aux cmp lst)
+ (or (null? lst)
+     (let loop ((x (car lst)) (lst (cdr lst)))
+      (or (null? lst)
+          (let ((y (car lst)))
+           (and (cmp x y)
+                (loop y (cdr lst))))))))
 
-(define >=
-  (lambda (x y)
-    (or (> x y) (= x y))))
+(define =  (lambda rest (#%cmp-aux #%=  rest)))
+(define <  (lambda rest (#%cmp-aux #%<  rest)))
+(define >  (lambda rest (#%cmp-aux #%>  rest)))
+(define <= (lambda rest (#%cmp-aux #%<= rest)))
+(define >= (lambda rest (#%cmp-aux #%>= rest)))
+
+(define (#%> a b) (#%< b a))
+(define (#%<= a b) (or (#%< a b) (#%= a b)))
+(define (#%>= a b) (or (#%> a b) (#%= a b)))
 
 (define (zero?     z) (= z 0))
 (define (positive? x) (> x 0))

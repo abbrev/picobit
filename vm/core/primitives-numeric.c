@@ -23,7 +23,7 @@ void decode_2_int_args () {
 	a2 = decode_int (arg2);
 }
 
-PRIMITIVE(=, equal, 2)
+PRIMITIVE(#%=, equal, 2)
 {
 #ifdef CONFIG_BIGNUM_LONG
 	arg1 = encode_bool(cmp (arg1, arg2) == 1);
@@ -113,24 +113,13 @@ PRIMITIVE(#%rem-non-neg, rem_non_neg, 2)
 	arg2 = OBJ_FALSE;
 }
 
-PRIMITIVE(<, lt, 2)
+PRIMITIVE(#%<, lt, 2)
 {
 #ifdef CONFIG_BIGNUM_LONG
 	arg1 = encode_bool(cmp (arg1, arg2) < 1);
 #else
 	decode_2_int_args ();
 	arg1 = encode_bool(a1 < a2);
-#endif
-	arg2 = OBJ_FALSE;
-}
-
-PRIMITIVE(>, gt, 2)
-{
-#ifdef CONFIG_BIGNUM_LONG
-	arg1 = encode_bool(cmp (arg1, arg2) > 1);
-#else
-	decode_2_int_args ();
-	arg1 = encode_bool(a1 > a2);
 #endif
 	arg2 = OBJ_FALSE;
 }
