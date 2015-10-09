@@ -1,17 +1,59 @@
 (define light adc)
 
-(define putchar
-  (lambda (c)
-    (#%putchar c 3)))
+; I/O ports:
+; 0 = stdin
+; 1 = stdout
+; 2 = stderr
+; XXX ports are not implemented in the VM yet
+(define #%*current-input-port* 3)
+(define #%*current-output-port* 3)
 
-(define getchar
-  (lambda ()
-    (or (#%getchar-wait 0 3)
-        (getchar))))
+(define (current-input-port) #%*current-input-port*)
+(define (current-output-port) #%*current-output-port*)
 
-(define getchar-wait
-  (lambda (duration)
-    (#%getchar-wait duration 3)))
+(define (#%get-input-port rest)
+  (if (null? rest)
+   (current-input-port)
+   (car rest)))
+
+(define (#%get-output-port rest)
+  (if (null? rest)
+   (current-output-port)
+   (car rest)))
+
+(define write-char
+  (lambda (c . rest)
+   (#%write-char c (#%get-output-port rest))))
+
+; '#%eof does not eq? any other object
+(define (eof-object? obj) (eq? obj '#%eof))
+
+(define #%*peek-char* #f) ; TODO this should be a map of port => peek-char
+
+(define (#%set-peek-char! c port)
+  (set! #%*peek-char* c))
+
+(define (#%get-peek-char port)
+  #%*peek-char*)
+
+(define char-ready?
+  (lambda rest
+   (#%char-ready? (#%get-input-port rest))))
+
+(define peek-char
+  (lambda rest
+   (let* ((port (#%get-input-port rest)) (pc (#%get-peek-char port)))
+    (or pc
+     (let ((c (or (#%read-char port) '#%eof)))
+      (#%set-peek-char! c port)
+      c)))))
+
+(define read-char
+  (lambda rest
+   (let ((port (#%get-input-port rest)))
+    (let ((pc (peek-char port)))
+     (if pc (#%set-peek-char! #f port))
+     pc))))
 
 (define sleep
   (lambda (duration)
@@ -30,53 +72,68 @@
         (#%led2-color 1)
         (#%led2-color 0))))
 
+(define (#%display x port)
+ (if (string? x)
+  (for-each (lambda (c) (#%write-char c port)) (string->list x))
+  (#%write x port)))
+
 (define display
-  (lambda (x)
-    (if (string? x)
-        (for-each putchar (string->list x))
-        (write x))))
+  (lambda (x . rest)
+   (#%display x (#%get-output-port rest))))
 
-(define (newline) (#%putchar #\newline 3))
+(define (#%newline port)
+  (#%write-char #\newline port))
 
-(define (displayln x) (display x) (newline))
+(define newline
+  (lambda rest
+   (#%newline (#%get-output-port rest))))
 
-(define write
-  (lambda (x)
+(define displayln
+  (lambda (x . rest)
+   (let ((port (#%get-output-port rest)))
+    (#%display x port) (#%newline port))))
+
+(define (#%write x port)
     (cond ((string? x)
-	   (begin (#%putchar #\" 3)
-		  (display x)
-		  (#%putchar #\" 3)))
+	   (begin (#%write-char #\" port)
+		  (#%display x port)
+		  (#%write-char #\" port)))
 	  ((number? x)
-	   (display (number->string x)))
+	   (#%display (number->string x) port))
 	  ((pair? x)
-	   (begin (#%putchar #\( 3)
-                  (write (car x))
-                  (#%write-list (cdr x))))
+	   (begin (#%write-char #\( port)
+                  (#%write (car x) port)
+                  (#%write-list (cdr x) port)))
 	  ((symbol? x)
-	   (display "#<symbol>"))
+	   (#%display "#<symbol>" port))
 	  ((boolean? x)
-	   (display (if x "#t" "#f")))
+	   (#%display (if x "#t" "#f") port))
 	  (else
-	   (display "#<object>")))))
+	   (#%display "#<object>" port))))
 ;; TODO have vectors and co ?
 
+(define write
+  (lambda (x . rest)
+   (#%write x (#%get-output-port rest))))
+
 (define #%write-list
-  (lambda (lst)
+  (lambda (lst port)
     (cond ((null? lst)
-	   (#%putchar #\) 3))
+	   (#%write-char #\) port))
 	  ((pair? lst)
-	   (begin (#%putchar #\space 3)
-		  (write (car lst))
-		  (#%write-list (cdr lst))))
+	   (begin (#%write-char #\space port)
+		  (#%write (car lst) port)
+		  (#%write-list (cdr lst) port)))
 	  (else
-	   (begin (display " . ")
-		  (write lst)
-		  (#%putchar #\) 3))))))
+	   (begin (#%display " . " port)
+		  (#%write lst port)
+		  (#%write-char #\) port))))))
 
 (define pp
-  (lambda (x)
-    (write x)
-    (#%putchar #\newline 3)))
+  (lambda (x . rest)
+   (let ((port (#%get-output-port rest)))
+    (#%write x port)
+    (#%write-char #\newline port))))
 
 (define current-time clock)
 (define time->seconds (lambda (t) (quotient t 100)))

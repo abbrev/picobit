@@ -232,51 +232,57 @@ PRIMITIVE_UNSPEC(#%led2-color, led2_color, 1)
 	arg1 = OBJ_FALSE;
 }
 
-PRIMITIVE(#%getchar-wait, getchar_wait, 2)
-{
-	decode_2_int_args();
-	a1 = read_clock () + a1;
+#include <sys/select.h>
+#include <unistd.h>
 
-	if (a2 < 1 || a2 > 3) {
-		ERROR("getchar-wait", "argument out of range");
+PRIMITIVE(#%char-ready?, char_ready_p, 1)
+{
+	a1 = decode_int (arg1);
+
+	if (a1 < 1 || a1 > 3) {
+		ERROR("char-ready?", "argument out of range");
 	}
 
 	arg1 = OBJ_FALSE;
-
-#ifdef PICOBOARD2
-	{
-		serial_port_set ports;
-		ports = serial_rx_wait_with_timeout( a2, a1 );
-
-		if (ports != 0) {
-			arg1 = encode_int (serial_rx_read( ports ));
-		}
-	}
-#endif
 
 #ifdef CONFIG_ARCH_HOST
-#ifdef _WIN32
-	arg1 = OBJ_FALSE;
-
-	do {
-		if (_kbhit ())  {
-			arg1 = encode_int (_getch ());
-			break;
+	{
+		struct timeval timeout = { .tv_sec = 0, .tv_usec = 0, };
+		fd_set readfds;
+		FD_ZERO(&readfds);
+		FD_SET(STDIN_FILENO, &readfds);
+		int n = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
+		if (n > 0) {
+			arg1 = OBJ_TRUE;
 		}
-	} while (read_clock () < a1);
-
-#else
-	arg1 = encode_int (getchar ());
-#endif
+	}
 #endif
 }
 
-PRIMITIVE(#%putchar, putchar, 2)
+PRIMITIVE(#%read-char, read_char, 1)
+{
+	a1 = decode_int (arg1);
+
+	if (a1 < 1 || a1 > 3) {
+		ERROR("read-char", "argument out of range");
+	}
+
+	arg1 = OBJ_FALSE;
+
+#ifdef CONFIG_ARCH_HOST
+	int c = getchar();
+	if (c >= 0) {
+		arg1 = encode_int (c);
+	}
+#endif
+}
+
+PRIMITIVE(#%write-char, write_char, 2)
 {
 	decode_2_int_args ();
 
 	if (a1 > 255 || a2 < 1 || a2 > 3) {
-		ERROR("putchar", "argument out of range");
+		ERROR("write-char", "argument out of range");
 	}
 
 #ifdef  PICOBOARD2
