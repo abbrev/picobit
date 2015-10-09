@@ -9,7 +9,7 @@
 
 (define neg
   (lambda (x)
-    (- 0 x)))
+    (#%- 0 x)))
 
 (define -
   (lambda (x . rest)
@@ -31,8 +31,8 @@
 
 (define #%mul
   (lambda (x y)
-    (let* ((x-neg? (< x 0))
-           (y-neg? (< y 0))
+    (let* ((x-neg? (#%< x 0))
+           (y-neg? (#%< y 0))
            (x      (if x-neg? (neg x) x))
            (y      (if y-neg? (neg y) y)))
       (let ((prod   (#%mul-non-neg x y)))
@@ -45,8 +45,8 @@
 
 (define quotient ;; TODO similar to #%mul, abstract ?
   (lambda (x y)
-    (let* ((x-neg? (< x 0))
-           (y-neg? (< y 0))
+    (let* ((x-neg? (#%< x 0))
+           (y-neg? (#%< y 0))
            (x      (if x-neg? (neg x) x))
            (y      (if y-neg? (neg y) y)))
       (let ((quot   (#%div-non-neg x y)))
@@ -85,9 +85,9 @@
 (define (#%<= a b) (or (#%< a b) (#%= a b)))
 (define (#%>= a b) (or (#%> a b) (#%= a b)))
 
-(define (zero?     z) (= z 0))
-(define (positive? x) (> x 0))
-(define (negative? x) (< x 0))
+(define (zero?     z) (#%= z 0))
+(define (positive? x) (#%> x 0))
+(define (negative? x) (#%< x 0))
 
 (define list
   (lambda lst lst))
@@ -120,7 +120,7 @@
 
 (define list-tail
   (lambda (lst i)
-    (if (= i 0)
+    (if (#%= i 0)
       lst
       (list-tail (cdr lst) (#%- i 1)))))
 
@@ -154,7 +154,7 @@
 
 (define abs
   (lambda (x)
-    (if (< x 0) (neg x) x)))
+    (if (#%< x 0) (neg x) x)))
 
 (define remainder #%rem-non-neg)
 (define modulo    #%rem-non-neg)
@@ -177,13 +177,13 @@
      (list->string (#%make-string-aux len c '())))))
 
 (define (#%make-string-aux len c lst)
-  (if (= len 0)
+  (if (#%= len 0)
    lst
-   (#%make-string-aux (- len 1) c (cons c lst))))
+   (#%make-string-aux (#%- len 1) c (cons c lst))))
 
 ; picobit implements characters as plain integers
-(define (char=? c1 c2) (= c1 c2))
-(define (char<? c1 c2) (< c1 c2))
+(define (char=? c1 c2) (#%= c1 c2))
+(define (char<? c1 c2) (#%< c1 c2))
 
 (define (string=? str1 str2)
   (or (eq? str1 str2)
@@ -239,13 +239,13 @@
 
 (define #%substring-aux1
   (lambda (lst n)
-    (if (>= n 1)
+    (if (#%>= n 1)
         (#%substring-aux1 (cdr lst) (#%- n 1))
         lst)))
 
 (define #%substring-aux2
   (lambda (lst n)
-    (if (>= n 1)
+    (if (#%>= n 1)
         (cons (car lst) (#%substring-aux2 (cdr lst) (#%- n 1)))
         '())))
 
@@ -318,14 +318,14 @@
 (define number->string
   (lambda (n)
     (list->string
-     (if (< n 0)
+     (if (#%< n 0)
          (cons #\- (#%number->string-aux (neg n) '()))
          (#%number->string-aux n '())))))
 
 (define #%number->string-aux
   (lambda (n lst)
     (let ((rest (cons (#%+ #\0 (remainder n 10)) lst)))
-      (if (< n 10)
+      (if (#%< n 10)
           rest
           (#%number->string-aux (quotient n 10) rest)))))
 
@@ -375,14 +375,14 @@
 (define u8vector-equal?
   (lambda (x y)
     (let ((lx (u8vector-length x)))
-      (if (= lx (u8vector-length y))
-	  (#%u8vector-equal?-loop x y (- lx 1))
+      (if (#%= lx (u8vector-length y))
+	  (#%u8vector-equal?-loop x y (#%- lx 1))
 	  #f))))
 (define #%u8vector-equal?-loop
   (lambda (x y l)
-    (if (= l 0)
+    (if (#%= l 0)
 	#t
-	(and (= (u8vector-ref x l) (u8vector-ref y l))
+	(and (#%= (u8vector-ref x l) (u8vector-ref y l))
 	     (#%u8vector-equal?-loop x y (#%- l 1))))))
 
 #|
@@ -449,18 +449,18 @@
 	(#%list->u8vector-loop v (#%+ n 1) (cdr x)))))
 (define make-u8vector
   (lambda (n x)
-    (#%make-u8vector-loop (#%make-u8vector n) (- n 1) x)))
+    (#%make-u8vector-loop (#%make-u8vector n) (#%- n 1) x)))
 (define #%make-u8vector-loop
   (lambda (v n x)
-    (if (>= n 0)
+    (if (#%>= n 0)
         (begin (u8vector-set! v n x)
-               (#%make-u8vector-loop v (- n 1) x))
+               (#%make-u8vector-loop v (#%- n 1) x))
         v)))
 (define u8vector-copy!
   (lambda (source source-start target target-start n)
-    (if (> n 0)
+    (if (#%> n 0)
         (begin (u8vector-set! target target-start
                               (u8vector-ref source source-start))
-               (u8vector-copy! source (+ source-start 1)
-                               target (+ target-start 1)
-                               (- n 1))))))
+               (u8vector-copy! source (#%+ source-start 1)
+                               target (#%+ target-start 1)
+                               (#%- n 1))))))
