@@ -120,13 +120,25 @@
   (lambda (lst i x)
     (set-car! (list-tail lst i) x)))
 
+(define (#%max-aux m lst)
+  (if (null? lst)
+   m
+   (let ((n (car lst)))
+    (#%max-aux (if (> n m) n m) (cdr lst)))))
+
 (define max
-  (lambda (x y)
-    (if (> x y) x y)))
+  (lambda (x1 . rest)
+   (#%max-aux x1 rest)))
+
+(define (#%min-aux m lst)
+  (if (null? lst)
+   m
+   (let ((n (car lst)))
+    (#%min-aux (if (< n m) n m) (cdr lst)))))
 
 (define min
-  (lambda (x y)
-    (if (< x y) x y)))
+  (lambda (x1 . rest)
+   (#%min-aux x1 rest)))
 
 (define abs
   (lambda (x)
