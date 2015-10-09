@@ -173,8 +173,41 @@
                      (loop (#%- len 1) (cons c lst))))))))
 
 ; picobit implements characters as plain integers
-(define (char=? c1 c2) (#%= c1 c2))
-(define (char<? c1 c2) (#%< c1 c2))
+(define (char=?  c1 c2) (#%=  c1 c2))
+(define (char<?  c1 c2) (#%<  c1 c2))
+(define (char>?  c1 c2) (#%>  c1 c2))
+(define (char<=? c1 c2) (#%<= c1 c2))
+(define (char>=? c1 c2) (#%>= c1 c2))
+
+(define (char-alphabetic? char)
+  (or (char-upper-case? char)
+      (char-lower-case? char)))
+
+(define (char-numeric? char)
+  (and (char>=? char #\0) (char<=? char #\9)))
+
+(define (char-whitespace? char)
+  (or (char=? char #\space)
+      (char=? char #\tab)
+      (char=? char #\linefeed)
+      ;(char=? char #\formfeed) ; #\formfeed not recognized?
+      (char=? char #\return)))
+
+(define (char-upper-case? letter)
+  (and (char>=? letter #\A) (char<=? letter #\Z)))
+
+(define (char-lower-case? letter)
+  (and (char>=? letter #\a) (char<=? letter #\z)))
+
+(define (char-downcase char)
+  (if (char-upper-case? char)
+   (#%+ char (#%- #\a #\A))
+   char))
+
+(define (char-upcase char)
+  (if (char-lower-case? char)
+   (#%+ char (#%- #\A #\a))
+   char))
 
 (define (string=? str1 str2)
   (or (eq? str1 str2)
