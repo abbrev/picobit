@@ -1,14 +1,11 @@
 (define +
-  (lambda (x . rest)
-    (if (pair? rest)
-        (#%+-aux x rest)
-        x)))
-
-(define #%+-aux
-  (lambda (x rest)
-    (if (pair? rest)
-        (#%+-aux (#%+ x (car rest)) (cdr rest))
-        x)))
+  (lambda rest
+   (if (null? rest)
+    0
+    (let loop ((x (car rest)) (rest (cdr rest)))
+     (if (null? rest)
+      x
+      (loop (#%+ x (car rest)) (cdr rest)))))))
 
 (define neg
   (lambda (x)
@@ -16,27 +13,21 @@
 
 (define -
   (lambda (x . rest)
-    (if (pair? rest)
-        (#%--aux x rest)
-        (neg x))))
-
-(define #%--aux
-  (lambda (x rest)
-    (if (pair? rest)
-        (#%--aux (#%- x (car rest)) (cdr rest))
-        x)))
+    (if (null? rest)
+        (neg x)
+        (let loop ((x x) (rest rest))
+	 (if (null? rest)
+	  x
+	  (loop (#%- x (car rest)) (cdr rest)))))))
 
 (define *
-  (lambda (x . rest)
-    (if (pair? rest)
-        (#%*-aux x rest)
-        x)))
-
-(define #%*-aux
-  (lambda (x rest)
-    (if (pair? rest)
-        (#%*-aux (#%mul x (car rest)) (cdr rest))
-        x)))
+  (lambda rest
+   (if (null? rest)
+    1
+    (let loop ((x (car rest)) (rest (cdr rest)))
+     (if (null? rest)
+      x
+      (loop (#%mul x (car rest)) (cdr rest)))))))
 
 (define #%mul
   (lambda (x y)
@@ -66,7 +57,14 @@
               (else
                quot))))))
 
-(define / quotient)
+(define /
+  (lambda (x . rest)
+    (if (null? rest)
+     (quotient 1 x)
+     (let loop ((x x) (rest rest))
+      (if (null? rest)
+       x
+       (loop (quotient x (car rest)) (cdr rest)))))))
 
 
 (define <=
