@@ -377,6 +377,7 @@
 	(and (= (u8vector-ref x l) (u8vector-ref y l))
 	     (#%u8vector-equal?-loop x y (#%- l 1))))))
 
+#|
 (define assoc
   (lambda (t l)
     (cond ((null? l)
@@ -394,6 +395,31 @@
 	   l)
 	  (else
 	   (memq t (cdr l))))))
+|#
+
+(define (#%mem-aux obj lst f? accessor)
+  (cond ((null? lst) #f)
+        ((f? (accessor (car lst)) obj) lst)
+	(else (#%mem-aux obj (cdr lst) f? accessor))))
+(define (#%ass-aux obj alst f?)
+ (let ((x (#%mem-aux obj alst f? car)))
+  (and x (car x))))
+
+(define (memq   obj lst) (#%mem-aux obj lst eq?    values))
+(define (memv   obj lst) (#%mem-aux obj lst eqv?   values))
+(define (member obj lst) (#%mem-aux obj lst equal? values))
+(define (assq   obj alst) (#%ass-aux obj alst eq?))
+(define (assv   obj alst) (#%ass-aux obj alst eqv?))
+(define (assoc  obj alst) (#%ass-aux obj alst equal?))
+
+;; XXX this is not 100% correct
+(define values
+ (lambda rest
+  (if (null? rest)
+   #f ; XXX
+   (car rest))))
+
+(define eqv? equal?) ; TODO implement a real eqv? function
 
 (define vector list)
 (define vector-ref list-ref)
