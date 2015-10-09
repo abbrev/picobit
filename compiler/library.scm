@@ -31,8 +31,8 @@
 
 (define #%mul
   (lambda (x y)
-    (let* ((x-neg? (#%< x 0))
-           (y-neg? (#%< y 0))
+    (let* ((x-neg? (negative? x))
+           (y-neg? (negative? y))
            (x      (if x-neg? (neg x) x))
            (y      (if y-neg? (neg y) y)))
       (let ((prod   (#%mul-non-neg x y)))
@@ -45,8 +45,8 @@
 
 (define quotient ;; TODO similar to #%mul, abstract ?
   (lambda (x y)
-    (let* ((x-neg? (#%< x 0))
-           (y-neg? (#%< y 0))
+    (let* ((x-neg? (negative? x))
+           (y-neg? (negative? y))
            (x      (if x-neg? (neg x) x))
            (y      (if y-neg? (neg y) y)))
       (let ((quot   (#%div-non-neg x y)))
@@ -120,7 +120,7 @@
 
 (define list-tail
   (lambda (lst i)
-    (if (#%= i 0)
+    (if (zero? i)
       lst
       (list-tail (cdr lst) (#%- i 1)))))
 
@@ -154,7 +154,7 @@
 
 (define abs
   (lambda (x)
-    (if (#%< x 0) (neg x) x)))
+    (if (negative? x) (neg x) x)))
 
 (define remainder #%rem-non-neg)
 (define modulo    #%rem-non-neg)
@@ -177,7 +177,7 @@
      (list->string (#%make-string-aux len c '())))))
 
 (define (#%make-string-aux len c lst)
-  (if (#%= len 0)
+  (if (zero? len)
    lst
    (#%make-string-aux (#%- len 1) c (cons c lst))))
 
@@ -239,13 +239,13 @@
 
 (define #%substring-aux1
   (lambda (lst n)
-    (if (#%>= n 1)
+    (if (positive? n)
         (#%substring-aux1 (cdr lst) (#%- n 1))
         lst)))
 
 (define #%substring-aux2
   (lambda (lst n)
-    (if (#%>= n 1)
+    (if (positive? n)
         (cons (car lst) (#%substring-aux2 (cdr lst) (#%- n 1)))
         '())))
 
@@ -318,7 +318,7 @@
 (define number->string
   (lambda (n)
     (list->string
-     (if (#%< n 0)
+     (if (negative? n)
          (cons #\- (#%number->string-aux (neg n) '()))
          (#%number->string-aux n '())))))
 
@@ -380,7 +380,7 @@
 	  #f))))
 (define #%u8vector-equal?-loop
   (lambda (x y l)
-    (if (#%= l 0)
+    (if (zero? l)
 	#t
 	(and (#%= (u8vector-ref x l) (u8vector-ref y l))
 	     (#%u8vector-equal?-loop x y (#%- l 1))))))
@@ -452,13 +452,13 @@
     (#%make-u8vector-loop (#%make-u8vector n) (#%- n 1) x)))
 (define #%make-u8vector-loop
   (lambda (v n x)
-    (if (#%>= n 0)
+    (if (negative? n)
+        v
         (begin (u8vector-set! v n x)
-               (#%make-u8vector-loop v (#%- n 1) x))
-        v)))
+               (#%make-u8vector-loop v (#%- n 1) x)))))
 (define u8vector-copy!
   (lambda (source source-start target target-start n)
-    (if (#%> n 0)
+    (if (positive? n)
         (begin (u8vector-set! target target-start
                               (u8vector-ref source source-start))
                (u8vector-copy! source (#%+ source-start 1)
