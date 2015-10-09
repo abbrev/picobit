@@ -179,11 +179,10 @@
 
 (define for-each
   (lambda (f lst)
-    (if (pair? lst)
-        (begin
-          (f (car lst))
-          (for-each f (cdr lst)))
-        #f)))
+    (and (pair? lst)
+         (begin
+	  (f (car lst))
+          (for-each f (cdr lst))))))
 
 (define call/cc
   (lambda (receiver)
