@@ -170,12 +170,12 @@
         (cons (car lst) (#%substring-aux2 (cdr lst) (#%- n 1)))
         '())))
 
-(define map
-  (lambda (f lst)
-    (if (pair? lst)
-        (cons (f (car lst))
-              (map f (cdr lst)))
-        '())))
+(define (map f lst)
+  (reverse
+   (let loop ((rev '()) (lst lst))
+    (if (null? lst)
+     rev
+     (loop (cons (f (car lst)) rev) (cdr lst))))))
 
 (define for-each
   (lambda (f lst)
