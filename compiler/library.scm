@@ -106,13 +106,10 @@
 
 (define reverse
   (lambda (lst)
-    (#%reverse-aux lst '())))
-
-(define #%reverse-aux
-  (lambda (lst rev)
-    (if (pair? lst)
-        (#%reverse-aux (cdr lst) (cons (car lst) rev))
-        rev)))
+    (let loop ((lst lst) (rev '()))
+     (if (null? lst)
+       rev
+       (loop (cdr lst) (cons (car lst) rev))))))
 
 (define list-tail
   (lambda (lst i)
