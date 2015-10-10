@@ -1,14 +1,54 @@
 (define light adc)
 
+; an I/O port consists of a file descriptor and a peek char
+(define (#%make-port fd) (cons fd #f))
+(define (#%port-get-fd port)
+ (if (pair? port)
+  (car port)
+  (begin
+   (#%write-char #\E 2)
+   (#%write-char #\f 2)
+   2)))
+(define (#%port-get-peek-char port)
+ (if (pair? port)
+  (cdr port)
+  (begin
+   (#%write-char #\E 2)
+   (#%write-char #\g 2)
+   #f)))
+(define (#%port-set-peek-char! port c)
+ (if (pair? port)
+  (set-cdr! port c)
+  (begin
+   (#%write-char #\E 2)
+   (#%write-char #\g 2)
+  )))
+
+(define *stdin*  (#%make-port 0))
+(define *stdout* (#%make-port 1))
+(define *stderr* (#%make-port 2))
+
 ; I/O ports:
 ; 0 = stdin
 ; 1 = stdout
 ; 2 = stderr
-(define #%*current-input-port* 0)
-(define #%*current-output-port* 1)
+(define #%*current-input-port* *stdin*)
+(define #%*current-output-port* *stdout*)
 
-(define (current-input-port) #%*current-input-port*)
-(define (current-output-port) #%*current-output-port*)
+(define (current-input-port)
+ (#%write-char #\I 1)
+ (display "(current-input-port) => " *stderr*)
+ (displayln #%*current-input-port* *stderr*)
+ (display "*stdin* => " *stderr*)
+ (displayln *stdin* *stderr*)
+ #%*current-input-port*)
+(define (current-output-port)
+ (#%write-char #\O 2)
+ ;(display "(current-output-port) => " *stderr*)
+ ;(displayln #%*current-output-port* *stderr*)
+ ;(display "*stdout* is a port => " *stderr*)
+ ;(displayln (pair? *stdout*) *stderr*)
+ #%*current-output-port*)
 
 ;;;; the following two functions are not standard but mimic
 ;;;; with-input-from-file and with-output-to-file
@@ -40,24 +80,10 @@
 
 (define write-char
   (lambda (c . rest)
-   (#%write-char c (#%get-output-port rest))))
+   (#%write-char c (#%port-get-fd (#%get-output-port rest)))))
 
 ; '#%eof does not eq? any other object
 (define (eof-object? obj) (eq? obj '#%eof))
-
-(define #%*peek-chars* '())
-
-(define (#%get-peek-char-pair port) (assv port #%*peek-chars*))
-
-(define (#%set-peek-char! c port)
-  (let ((pair (#%get-peek-char-pair port)))
-   (if pair
-    (set-cdr! pair port)
-    (set! #%*peek-chars* (cons (cons port c) #%*peek-chars*)))))
-
-(define (#%get-peek-char port)
-  (let ((pair (#%get-peek-char-pair port)))
-    (and pair (cdr pair))))
 
 (define char-ready?
   (lambda rest
@@ -68,13 +94,13 @@
 ; if a peek char does not exist for port, read a char and return it; if keep is
 ; true, save the peek char before returning
 (define (#%peek-or-read-char port keep)
-  (let ((pc (#%get-peek-char port)))
+  (let ((pc (#%port-get-peek-char port)))
    (if pc
      (let ((c pc))
-       (if (not keep) (#%set-peek-char! #f port))
+       (if (not keep) (#%port-set-peek-char! port #f))
        c)
-     (let* ((c (or (#%read-char port) '#%eof)))
-      (if keep (#%set-peek-char! c port))
+     (let* ((c (or (#%read-char (#%port-get-fd port)) '#%eof)))
+      (if keep (#%port-set-peek-char! port c))
       c))))
 
 (define peek-char
@@ -104,7 +130,7 @@
 
 (define (#%display x port)
  (if (string? x)
-  (for-each (lambda (c) (#%write-char c port)) (string->list x))
+  (let ((fd (#%port-get-fd port))) (for-each (lambda (c) (#%write-char c fd)) (string->list x)))
   (#%write x port)))
 
 (define display
@@ -112,7 +138,7 @@
    (#%display x (#%get-output-port rest))))
 
 (define (#%newline port)
-  (#%write-char #\newline port))
+  (#%write-char #\newline (#%port-get-fd port)))
 
 (define newline
   (lambda rest
@@ -125,13 +151,13 @@
 
 (define (#%write x port)
     (cond ((string? x)
-	   (begin (#%write-char #\" port)
+	   (begin (#%write-char #\" (#%port-get-fd port))
 		  (#%display x port)
-		  (#%write-char #\" port)))
+		  (#%write-char #\" (#%port-get-fd port))))
 	  ((number? x)
 	   (#%display (number->string x) port))
 	  ((pair? x)
-	   (begin (#%write-char #\( port)
+	   (begin (#%write-char #\( (#%port-get-fd port))
                   (#%write (car x) port)
                   (#%write-list (cdr x) port)))
 	  ((symbol? x)
@@ -149,21 +175,21 @@
 (define #%write-list
   (lambda (lst port)
     (cond ((null? lst)
-	   (#%write-char #\) port))
+	   (#%write-char #\) (#%port-get-fd port)))
 	  ((pair? lst)
-	   (begin (#%write-char #\space port)
+	   (begin (#%write-char #\space (#%port-get-fd port))
 		  (#%write (car lst) port)
 		  (#%write-list (cdr lst) port)))
 	  (else
 	   (begin (#%display " . " port)
 		  (#%write lst port)
-		  (#%write-char #\) port))))))
+		  (#%write-char #\) (#%port-get-fd port)))))))
 
 (define pp
   (lambda (x . rest)
    (let ((port (#%get-output-port rest)))
     (#%write x port)
-    (#%write-char #\newline port))))
+    (#%write-char #\newline (#%port-get-fd port)))))
 
 (define current-time clock)
 (define time->seconds (lambda (t) (quotient t 100)))
