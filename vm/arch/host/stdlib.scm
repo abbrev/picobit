@@ -10,6 +10,24 @@
 (define (current-input-port) #%*current-input-port*)
 (define (current-output-port) #%*current-output-port*)
 
+;;;; the following two functions are not standard but mimic
+;;;; with-input-from-file and with-output-to-file
+
+(define (with-input-from-port port proc)
+ (let ((old #%*current-input-port*))
+  (set! #%*current-input-port* port)
+  (let ((n (proc)))
+   (set! #%*current-input-port* old)
+   n)))
+
+(define (with-output-to-port port proc)
+ (let ((old #%*current-output-port*))
+  (set! #%*current-output-port* port)
+  (let ((n (proc)))
+   (set! #%*current-output-port* old)
+   n)))
+
+
 (define (#%get-input-port rest)
   (if (null? rest)
    (current-input-port)
