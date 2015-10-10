@@ -57,20 +57,27 @@
   (lambda rest
    (#%char-ready? (#%get-input-port rest))))
 
+; if a peek char exists for port, return it; if keep is false, delete the peek
+; char before returning
+; if a peek char does not exist for port, read a char and return it; if keep is
+; true, save the peek char before returning
+(define (#%peek-or-read-char port keep)
+  (let ((pc (#%get-peek-char port)))
+   (if pc
+     (let ((c pc))
+       (if (not keep) (#%set-peek-char! #f port))
+       c)
+     (let* ((c (or (#%read-char port) '#%eof)))
+      (if keep (#%set-peek-char! c port))
+      c))))
+
 (define peek-char
   (lambda rest
-   (let* ((port (#%get-input-port rest)) (pc (#%get-peek-char port)))
-    (or pc
-     (let ((c (or (#%read-char port) '#%eof)))
-      (#%set-peek-char! c port)
-      c)))))
+   (#%peek-or-read-char (#%get-input-port rest) #t)))
 
 (define read-char
   (lambda rest
-   (let ((port (#%get-input-port rest)))
-    (let ((pc (peek-char port)))
-     (if pc (#%set-peek-char! #f port))
-     pc))))
+   (#%peek-or-read-char (#%get-input-port rest) #f)))
 
 (define sleep
   (lambda (duration)
