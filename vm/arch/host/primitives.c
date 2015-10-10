@@ -239,7 +239,7 @@ PRIMITIVE(#%char-ready?, char_ready_p, 1)
 {
 	a1 = decode_int (arg1);
 
-	if (a1 < 1 || a1 > 3) {
+	if (a1 < 0 || a1 > 2) {
 		ERROR("char-ready?", "argument out of range");
 	}
 
@@ -250,8 +250,8 @@ PRIMITIVE(#%char-ready?, char_ready_p, 1)
 		struct timeval timeout = { .tv_sec = 0, .tv_usec = 0, };
 		fd_set readfds;
 		FD_ZERO(&readfds);
-		FD_SET(STDIN_FILENO, &readfds);
-		int n = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
+		FD_SET(a1, &readfds);
+		int n = select(a1 + 1, &readfds, NULL, NULL, &timeout);
 		if (n > 0) {
 			arg1 = OBJ_TRUE;
 		}
@@ -263,16 +263,19 @@ PRIMITIVE(#%read-char, read_char, 1)
 {
 	a1 = decode_int (arg1);
 
-	if (a1 < 1 || a1 > 3) {
+	if (a1 < 0 || a1 > 2) {
 		ERROR("read-char", "argument out of range");
 	}
 
 	arg1 = OBJ_FALSE;
 
 #ifdef CONFIG_ARCH_HOST
-	int c = getchar();
-	if (c >= 0) {
-		arg1 = encode_int (c);
+	{
+		char c;
+		int n = read (a1, &c, 1);
+		if (n > 0) {
+			arg1 = encode_int (c);
+		}
 	}
 #endif
 }
@@ -281,7 +284,7 @@ PRIMITIVE(#%write-char, write_char, 2)
 {
 	decode_2_int_args ();
 
-	if (a1 > 255 || a2 < 1 || a2 > 3) {
+	if (a1 > 255 || a2 < 0 || a2 > 2) {
 		ERROR("write-char", "argument out of range");
 	}
 
@@ -293,8 +296,11 @@ PRIMITIVE(#%write-char, write_char, 2)
 #endif
 
 #ifdef CONFIG_ARCH_HOST
-	putchar (a1);
-	fflush (stdout);
+	{
+		char c = a1;
+		int n = write (a2, &c, 1);
+		(void)n; // do we want to use the return value to report an error?
+	}
 #endif
 
 	arg1 = OBJ_FALSE;

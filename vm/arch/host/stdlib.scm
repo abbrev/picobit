@@ -4,9 +4,8 @@
 ; 0 = stdin
 ; 1 = stdout
 ; 2 = stderr
-; XXX ports are not implemented in the VM yet
-(define #%*current-input-port* 3)
-(define #%*current-output-port* 3)
+(define #%*current-input-port* 0)
+(define #%*current-output-port* 1)
 
 (define (current-input-port) #%*current-input-port*)
 (define (current-output-port) #%*current-output-port*)
