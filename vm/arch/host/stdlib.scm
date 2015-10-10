@@ -45,13 +45,19 @@
 ; '#%eof does not eq? any other object
 (define (eof-object? obj) (eq? obj '#%eof))
 
-(define #%*peek-char* #f) ; TODO this should be a map of port => peek-char
+(define #%*peek-chars* '())
+
+(define (#%get-peek-char-pair port) (assv port #%*peek-chars*))
 
 (define (#%set-peek-char! c port)
-  (set! #%*peek-char* c))
+  (let ((pair (#%get-peek-char-pair port)))
+   (if pair
+    (set-cdr! pair port)
+    (set! #%*peek-chars* (cons (cons port c) #%*peek-chars*)))))
 
 (define (#%get-peek-char port)
-  #%*peek-char*)
+  (let ((pair (#%get-peek-char-pair port)))
+    (and pair (cdr pair))))
 
 (define char-ready?
   (lambda rest
